@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Department Checklist Form - Resigned Staff</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="https://cdn-icons-png.flaticon.com/512/1057/1057241.png">
+    <!-- Tailwind CSS & DaisyUI -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- jsPDF and AutoTable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        #pdf-content {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 15mm 20mm;
+            margin: auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.15);
+            color: black;
+            font-size: 11pt;
+            line-height: 1.4;
+            position: relative;
+        }
+
+        .form-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.2rem;
+        }
+
+        .form-table th, .form-table td {
+            border: 1px solid #000;
+            padding: 6px 10px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .header-title {
+            color: #000000; 
+            font-weight: 900;
+            font-size: 16pt;
+            border-bottom: 2px solid #000000;
+            display: inline-block;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            /* ADD THIS LINE BELOW add line to the preview*/
+            padding: 0 40px 5px 40px; /* Top, Right, Bottom, Left */
+        }
+
+        .section-label {
+            color: #000000;
+            font-weight: bold;
+            text-decoration: underline;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .it-only-label {
+            color: #000000;
+            font-weight: bold;
+            font-style: italic;
+            font-size: 9pt;
+            margin-bottom: 4px;
+        }
+
+        .text-maroon {
+            color: #c00000; 
+        }
+
+        .text-footer-green {
+            color: #1fac4b; 
+        }
+
+        .underline-field {
+            border-bottom: 1px solid black;
+            padding-bottom: 1px;
+            font-weight: bold;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            #pdf-content { box-shadow: none; margin: 0; padding: 15mm 20mm; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <div class="flex flex-col lg:flex-row flex-grow overflow-hidden">
+        
+        <!-- Sidebar Form Input (Left) -->
+        <div class="w-full lg:w-96 bg-base-100 p-6 overflow-y-auto border-r border-base-300 no-print flex-shrink-0">
+            <div class="flex flex-col gap-4 mb-8">
+                <h1 class="text-xl font-black text-slate-800 uppercase tracking-tight">IT Form (Resigned Staff)</h1>
+                <div class="grid grid-cols-1 gap-2">
+                    <button onclick="downloadDirectPDF()" class="btn btn-error text-white w-full shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        Download PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Editor Accordions -->
+            <div class="join join-vertical w-full">
+                <!-- Employee -->
+                <div class="collapse collapse-arrow join-item border border-base-300 bg-base-100">
+                    <input type="radio" name="editor-panels" checked="checked" /> 
+                    <div class="collapse-title font-bold text-sm uppercase text-error">Employee Details</div>
+                    <div class="collapse-content space-y-3 pt-4">
+                        <div class="form-control">
+                            <label class="label p-1"><span class="label-text text-xs">Company Name</span></label>
+                            <select id="in-company" class="select select-sm select-bordered w-full" onchange="sync()">
+                                <option value="" disabled selected>Select Company</option>
+                                <optgroup label="TMS+">
+                                    <option value="Total Metering Solution Sdn Bhd">Total Metering Solution Sdn Bhd</option>
+                                    <option value="TMS Enthu Technology Sdn Bhd">TMS Enthu Technology Sdn Bhd</option>
+                                    <option value="TMS Energy Sdn Bhd">TMS Energy Sdn Bhd</option>
+                                    <option value="TMS KJ Distribution Sdn Bhd">TMS KJ Distribution Sdn Bhd</option>
+                                </optgroup>
+                                <optgroup label="PVG">
+                                    <option value="Broyson Automation Sdn Bhd">Broyson Automation Sdn Bhd</option>
+                                    <option value="Well Prestige Sdn Bhd">Well Prestige Sdn Bhd</option>
+                                    <option value="Synergy Instrumentation Sdn Bhd">Synergy Instrumentation Sdn Bhd</option>
+                                    <option value="Green Protechnic Sdn Bhd">Green Protechnic Sdn Bhd</option>
+                                    <option value="Jamac Metering Sdn Bhd">Jamac Metering Sdn Bhd</option>
+                                </optgroup>
+                                <optgroup label="Others">
+                                    <option value="SFG Technology (M) Sdn Bhd">SFG Technology (M) Sdn Bhd</option>
+                                    <option value="Omnipro Industries Sdn Bhd">Omnipro Industries Sdn Bhd</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="form-control">
+                            <label class="label p-1"><span class="label-text text-xs">Staff Name</span></label>
+                            <input type="text" id="in-name" class="input input-sm input-bordered w-full" placeholder="Full Name" oninput="sync()">
+                        </div>
+                        <div class="form-control">
+                            <label class="label p-1"><span class="label-text text-xs">Staff ID</span></label>
+                            <input type="text" id="in-id" class="input input-sm input-bordered w-full" placeholder="e.g. WP056" oninput="sync()">
+                        </div>
+                        <div class="form-control">
+                            <label class="label p-1"><span class="label-text text-xs">Department</span></label>
+                            <input type="text" id="in-dept" class="input input-sm input-bordered w-full" placeholder="e.g. Sales" oninput="sync()">
+                        </div>
+                        <div class="form-control">
+                            <label class="label p-1"><span class="label-text text-xs">Designation</span></label>
+                            <input type="text" id="in-desig" class="input input-sm input-bordered w-full" placeholder="e.g. Sales Engineer" oninput="sync()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resigned Procedures -->
+                <div class="collapse collapse-arrow join-item border border-base-300 bg-base-100">
+                    <input type="radio" name="editor-panels" /> 
+                    <div class="collapse-title font-bold text-sm uppercase">Resigned Procedures</div>
+                    <div class="collapse-content space-y-1 pt-4">
+                        <label class="label cursor-pointer py-1"><span class="label-text text-xs">Hand Over Hardware</span><input type="checkbox" id="chk-handover" class="checkbox checkbox-xs" onchange="sync()"></label>
+                        <label class="label cursor-pointer py-1"><span class="label-text text-xs">Password for PC (Login Details)</span><input type="checkbox" id="chk-password" class="checkbox checkbox-xs" onchange="sync()"></label>
+                        <label class="label cursor-pointer py-1"><span class="label-text text-xs">Backup Necessary Docs</span><input type="checkbox" id="chk-docs" class="checkbox checkbox-xs" onchange="sync()"></label>
+                        <label class="label cursor-pointer py-1"><span class="label-text text-xs">Backup Email Addresses</span><input type="checkbox" id="chk-emails" class="checkbox checkbox-xs" onchange="sync()"></label>
+                        <label class="label cursor-pointer py-1"><span class="label-text text-xs">Reset Email Password</span><input type="checkbox" id="chk-reset" class="checkbox checkbox-xs" onchange="sync()"></label>
+                        <label class="label cursor-pointer py-1"><span class="label-text text-xs">Setup Auto Reply</span><input type="checkbox" id="chk-autoreply" class="checkbox checkbox-xs" onchange="sync()"></label>
+                        <label class="label cursor-pointer py-1"><span class="label-text text-xs">Setup Auto Forward</span><input type="checkbox" id="chk-autoforward" class="checkbox checkbox-xs" onchange="sync()"></label>
+                        <label class="label cursor-pointer py-1"><span class="label-text text-xs">Deactivate Ticket System</span><input type="checkbox" id="chk-ticket" class="checkbox checkbox-xs" onchange="sync()"></label>
+                        <label class="label cursor-pointer py-1"><span class="label-text text-xs">Format Laptop/Desktop</span><input type="checkbox" id="chk-format" class="checkbox checkbox-xs" onchange="sync()"></label>
+                    </div>
+                </div>
+
+                <!-- Asset & Date -->
+                <div class="collapse collapse-arrow join-item border border-base-300 bg-base-100">
+                    <input type="radio" name="editor-panels" /> 
+                    <div class="collapse-title font-bold text-sm uppercase">Remarks & Asset</div>
+                    <div class="collapse-content space-y-3 pt-4">
+                        <div class="form-control">
+                            <label class="label p-1"><span class="label-text text-xs">Remarks (Condition)</span></label>
+                            <textarea id="in-remarks" class="textarea textarea-bordered textarea-sm w-full" rows="2" placeholder="Condition of laptop..." oninput="sync()"></textarea>
+                        </div>
+                        <div class="form-control">
+                            <label class="label p-1"><span class="label-text text-xs">Asset No.</span></label>
+                            <input type="text" id="in-asset" class="input input-sm input-bordered w-full" value="NO RECORD" oninput="sync()">
+                        </div>
+                        <div class="form-control">
+                            <label class="label p-1"><span class="label-text text-xs">Handover Date</span></label>
+                            <input type="date" id="in-date" class="input input-sm input-bordered w-full" oninput="sync()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Preview (Right) -->
+        <div class="flex-grow p-8 bg-slate-300 overflow-y-auto flex justify-center">
+            <div id="pdf-content">
+                <!-- PDF Header -->
+                <div class="text-center mb-10">
+                    <div class="header-title">IT DEPARTMENT CHECK LIST (RESIGNED STAFF)</div>
+                </div>
+
+                <!-- Section: Employee Details -->
+                <div class="mb-6">
+                    <span class="section-label">EMPLOYEE DETAILS:</span>
+                    <table class="form-table">
+                        <tr>
+                            <td width="35%" class="bg-slate-50 font-bold text-[9pt]">COMPANY NAME:</td>
+                            <td id="pv-company" class="font-bold text-[10pt]"></td>
+                        </tr>
+                        <tr>
+                            <td class="bg-slate-50 font-bold text-[9pt]">STAFF NAME:</td>
+                            <td id="pv-name" class="font-bold text-[10pt]"></td>
+                        </tr>
+                        <tr>
+                            <td class="bg-slate-50 font-bold text-[9pt]">STAFF ID:</td>
+                            <td id="pv-id" class="font-bold text-[10pt]"></td>
+                        </tr>
+                        <tr>
+                            <td class="bg-slate-50 font-bold text-[9pt]">DEPARTMENT:</td>
+                            <td id="pv-dept" class="font-bold text-[10pt]"></td>
+                        </tr>
+                        <tr>
+                            <td class="bg-slate-50 font-bold text-[9pt]">DESIGNATION:</td>
+                            <td id="pv-desig" class="font-bold text-[10pt]"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Section: Procedure -->
+                <div class="mb-6">
+                    <p class="it-only-label">**IT USE ONLY***</p>
+                    <span class="section-label">STAFF RESIGNED PROCEDURE:</span>
+                    <table class="form-table">
+                        <tr>
+                            <td width="80%" class="text-[9pt] font-bold">HAND OVER (LAPTOP / DESKTOP)</td>
+                            <td width="20%" class="text-center font-bold text-xl text-maroon" id="pv-chk-handover"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-[9pt] font-bold">PASSWORD FOR PC/LAPTOP (LOGIN DETAILS)</td>
+                            <td class="text-center font-bold text-xl text-maroon" id="pv-chk-password"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-[9pt] font-bold">BACK UP ALL THE NECESSARY DOCUMENT</td>
+                            <td class="text-center font-bold text-xl text-maroon" id="pv-chk-docs"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-[9pt] font-bold">BACK UP ALL THE IMPORTANT EMAIL ADDRESS</td>
+                            <td class="text-center font-bold text-xl text-maroon" id="pv-chk-emails"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-[9pt] font-bold">RESET EMAIL PASSWORD</td>
+                            <td class="text-center font-bold text-xl text-maroon" id="pv-chk-reset"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-[9pt] font-bold">SETUP AUTOMATIC REPLY FOR EMAIL</td>
+                            <td class="text-center font-bold text-xl text-maroon" id="pv-chk-autoreply"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-[9pt] font-bold">SETUP AUTO FORWARD EMAIL</td>
+                            <td class="text-center font-bold text-xl text-maroon" id="pv-chk-autoforward"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-[9pt] font-bold">DEACTIVATE USER FROM IT TICKETING SYSTEM</td>
+                            <td class="text-center font-bold text-xl text-maroon" id="pv-chk-ticket"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-[9pt] font-bold">FORMAT THE LAPTOP DESKTOP (FRESH NEW)</td>
+                            <td class="text-center font-bold text-xl text-maroon" id="pv-chk-format"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Section: Remarks -->
+                <div class="mb-10">
+                    <p class="font-bold text-[10pt] mb-2">REMARKS-CONDITION OF LAPTOP</p>
+                    <div id="pv-remarks" class="p-3 border border-black min-h-[60px] text-[9pt] font-bold text-maroon uppercase"></div>
+                </div>
+
+                <!-- Section: Assets -->
+                <div class="mb-10">
+                    <p class="it-only-label">**IT USE ONLY***</p>
+                    <div class="space-y-4">
+                        <p class="font-bold">FIX ASSET NUMBER: <span id="pv-asset" class="underline-field ml-2 px-4 min-w-[150px] inline-block text-maroon"></span></p>
+                        <p class="font-bold">DATE HANDOVER: <span id="pv-date" class="underline-field ml-2 px-4 min-w-[150px] inline-block text-maroon"></span></p>
+                    </div>
+                </div>
+
+                <!-- PDF Layout Footer -->
+                <div class="absolute bottom-8 left-20 right-20 pt-2 border-t border-black flex justify-between text-[8pt] font-bold text-footer-green">
+                    <div>HQ-IT-F02 Rev.: 00</div>
+                    <div>Page: 1 of 1</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Web Footer Section -->
+    <footer class="w-full bg-white border-t border-slate-200 px-8 py-4 no-print">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] font-bold tracking-widest text-slate-400">
+            <div>
+                © <span id="footer-year"></span> MUHAMMAD AQIL ISMAIL
+            </div>
+            <div>
+                INTERNAL USE ONLY
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Set Default Date as Current Date
+        document.getElementById('in-date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('footer-year').innerText = new Date().getFullYear();
+
+        function sync() {
+            // Update Text Fields
+            const fields = ['company', 'name', 'id', 'dept', 'desig', 'asset', 'remarks'];
+            fields.forEach(f => {
+                const inputEl = document.getElementById(`in-${f}`);
+                const previewEl = document.getElementById(`pv-${f}`);
+                if (inputEl && previewEl) {
+                    let val = (inputEl.value || "").toUpperCase();
+                    previewEl.innerText = val;
+                }
+            });
+            
+            // Handle Date
+            const dateVal = document.getElementById('in-date').value;
+            const datePv = document.getElementById('pv-date');
+            if(dateVal && datePv) {
+                const [y, m, d] = dateVal.split('-');
+                datePv.innerText = `${d}/${m}/${y}`;
+            }
+
+            // Handle Checklist
+            const procedures = ['handover', 'password', 'docs', 'emails', 'reset', 'autoreply', 'autoforward', 'ticket', 'format'];
+            procedures.forEach(id => {
+                const chk = document.getElementById(`chk-${id}`);
+                const pv = document.getElementById(`pv-chk-${id}`);
+                if (chk && pv) pv.innerText = chk.checked ? '✓' : '';
+            });
+        }
+
+        async function downloadDirectPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            const staffNameRaw = document.getElementById('in-name').value || '';
+            const staffNameFormatted = staffNameRaw.toUpperCase();
+            
+            const getTick = (checked) => checked ? '4' : ''; 
+
+            // 1. Header
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(16);
+            doc.text('IT DEPARTMENT CHECK LIST (RESIGNED STAFF)', 105, 20, { align: 'center' });
+            doc.setLineWidth(0.5);
+            // doc.line(40, 22, 170, 22);
+            doc.line(30, 22, 180, 22);
+
+            // 2. Employee Details
+            doc.setFontSize(11);
+            doc.text('EMPLOYEE DETAILS:', 20, 35);
+            
+            const empRows = [
+                ['COMPANY NAME:', (document.getElementById('in-company').value || '').toUpperCase()],
+                ['STAFF NAME:', staffNameFormatted],
+                ['STAFF ID:', (document.getElementById('in-id').value || '').toUpperCase()],
+                ['DEPARTMENT:', (document.getElementById('in-dept').value || '').toUpperCase()],
+                ['DESIGNATION:', (document.getElementById('in-desig').value || '').toUpperCase()]
+            ];
+
+            doc.autoTable({
+                startY: 38,
+                margin: { left: 20, right: 20 },
+                body: empRows,
+                theme: 'grid',
+                styles: { fontSize: 9, cellPadding: 2, textColor: 0, lineColor: 0, lineWidth: 0.1 },
+                columnStyles: { 0: { cellWidth: 50, fontStyle: 'bold', fillColor: [245, 245, 245] } }
+            });
+
+            // 3. Resigned Procedure
+            let currentY = doc.lastAutoTable.finalY + 8;
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bolditalic');
+            doc.text('**IT USE ONLY***', 20, currentY);
+            
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.text('STAFF RESIGNED PROCEDURE:', 20, currentY + 5);
+
+            const procRows = [
+                ['HAND OVER (LAPTOP / DESKTOP)', getTick(document.getElementById('chk-handover').checked)],
+                ['PASSWORD FOR PC/LAPTOP (LOGIN DETAILS)', getTick(document.getElementById('chk-password').checked)],
+                ['BACK UP ALL THE NECESSARY DOCUMENT', getTick(document.getElementById('chk-docs').checked)],
+                ['BACK UP ALL THE IMPORTANT EMAIL ADDRESS', getTick(document.getElementById('chk-emails').checked)],
+                ['RESET EMAIL PASSWORD', getTick(document.getElementById('chk-reset').checked)],
+                ['SETUP AUTOMATIC REPLY FOR EMAIL', getTick(document.getElementById('chk-autoreply').checked)],
+                ['SETUP AUTO FORWARD EMAIL', getTick(document.getElementById('chk-autoforward').checked)],
+                ['DEACTIVATE USER FROM IT TICKETING SYSTEM', getTick(document.getElementById('chk-ticket').checked)],
+                ['FORMAT THE LAPTOP DESKTOP (FRESH NEW)', getTick(document.getElementById('chk-format').checked)]
+            ];
+
+            doc.autoTable({
+                startY: currentY + 8,
+                margin: { left: 20, right: 20 },
+                body: procRows,
+                theme: 'grid',
+                styles: { fontSize: 9, cellPadding: 3, textColor: 0, lineColor: 0, lineWidth: 0.1 },
+                columnStyles: { 
+                    0: { fontStyle: 'bold' },
+                    1: { halign: 'center', font: 'ZapfDingbats', fontSize: 14, textColor: [192, 0, 0] } 
+                }
+            });
+
+            // 4. Remarks Section
+            currentY = doc.lastAutoTable.finalY + 10;
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.text('REMARKS-CONDITION OF LAPTOP', 20, currentY);
+            
+            const remarks = document.getElementById('in-remarks').value.toUpperCase();
+            doc.setDrawColor(0);
+            doc.rect(20, currentY + 2, 170, 20);
+            doc.setFontSize(9);
+            doc.setTextColor(192, 0, 0);
+            doc.text(remarks, 23, currentY + 8, { maxWidth: 164 });
+
+            // 5. Assets Section
+            currentY = currentY + 30;
+            doc.setTextColor(0);
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bolditalic');
+            doc.text('**IT USE ONLY***', 20, currentY);
+            
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(10);
+            doc.text(`FIX ASSET NUMBER: `, 20, currentY + 8);
+            doc.setTextColor(192, 0, 0); 
+            doc.text(`${document.getElementById('in-asset').value.toUpperCase()}`, 60, currentY + 8);
+            
+            const dateInput = document.getElementById('in-date').value;
+            const dateStr = dateInput ? dateInput.split('-').reverse().join('/') : '';
+            
+            doc.setTextColor(0);
+            doc.text(`DATE HANDOVER: `, 20, currentY + 16);
+            doc.setTextColor(192, 0, 0); 
+            doc.text(`${dateStr}`, 60, currentY + 16);
+
+            // Footer
+            doc.setFontSize(8);
+            doc.setTextColor(31, 172, 75); 
+            doc.setFont('helvetica', 'bold');
+            doc.text('HQ-IT-F02 Rev.: 00', 20, 285);
+            doc.text('Page: 1 of 1', 170, 285);
+
+            const fileName = staffNameRaw ? `${staffNameRaw.trim()} (IT Department Checklist Form - Resigned Staff).pdf` : `(IT Department Checklist Form - Resigned Staff).pdf`;
+            doc.save(fileName);
+        }
+
+        window.onload = sync;
+    </script>
+</body>
+</html>
