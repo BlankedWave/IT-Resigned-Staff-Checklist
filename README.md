@@ -93,10 +93,3 @@ This tool is developed specifically for:
 **TMS Sdn Bhd – IT Department (Internal Use Only)**
 
 Not intended for public commercial deployment.
-
----
-
-## 👨‍💻 Author
-
-**Muhammad Aqil Ismail**
-IT Support / Software & AI Engineer
